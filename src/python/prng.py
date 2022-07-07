@@ -165,8 +165,6 @@ class RandomNumberDevice():
 
 
 	def next_hashing_state(self):
-		# l_state_uint8_hex = ['{:02X}'.format(v) for v in self.arr_state_uint8]
-		# print(f"next_hashing_state begin: l_state_uint8_hex: {l_state_uint8_hex}")
 		for i in range(0, self.amount_block):
 			idx_blk_0 = (i + 0) % self.amount_block
 			idx_blk_1 = (i + 1) % self.amount_block
@@ -185,9 +183,6 @@ class RandomNumberDevice():
 			arr_hash_1 = np.array(list(sha256(arr_part_1.data).digest()), dtype=np.uint8)
 			self.arr_state_uint8[idx_1_0:idx_1_1] ^= arr_hash_0 ^ arr_hash_1 ^ arr_part_0
 			
-			# print(f"next_hashing_state i: {i}, l_state_uint8_hex: {l_state_uint8_hex}")
-		# print("")
-
 
 	def calc_next_uint64(self, amount):
 		arr = np.empty((amount, ), dtype=np.uint64)
@@ -277,7 +272,6 @@ class RandomNumberDevice():
 
 if __name__ == '__main__':
 	argv = sys.argv
-	# print(f"argv: {argv}")
 
 	d_keyargs = {}
 	for arg in argv[1:]:
@@ -294,11 +288,6 @@ if __name__ == '__main__':
 	seed_u8 = np.array([int(v, 16) for v in d_keyargs["seed_u8"].split(",")], dtype=np.uint8)
 	length_u8 = int(d_keyargs["length_u8"])
 	types_of_arr = [(lambda x: (x[0], int(x[1], 10)))(v.split(":")) for v in d_keyargs["types_of_arr"].split(",")]
-
-	print(f"file_path: {file_path}")
-	print(f"seed_u8: {seed_u8}")
-	print(f"length_u8: {length_u8}")
-	print(f"types_of_arr: {types_of_arr}")
 
 	rnd = RandomNumberDevice(
 		arr_seed_uint8=seed_u8,

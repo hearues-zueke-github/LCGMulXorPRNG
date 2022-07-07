@@ -148,6 +148,8 @@ mod prng {
             print!("self.sm_curr.v_x_xor: {:08X}\n", self.sm_curr.v_x_xor);
             print!("self.sm_curr.v_a_xor: {:08X}\n", self.sm_curr.v_a_xor);
             print!("self.sm_curr.v_b_xor: {:08X}\n", self.sm_curr.v_b_xor);
+            print!("idx_values_mult:{}\n", self.sm_curr.idx_values_mult);
+            print!("idx_values_xor:{}\n", self.sm_curr.idx_values_xor);
         }
 
         fn init_state(&mut self) {
@@ -205,7 +207,7 @@ mod prng {
             self.sm_prev.copy_sm(&self.sm_curr);
         }
 
-        #[allow(dead_code)]    
+        #[allow(dead_code)]
         pub fn restore_previous_state(&mut self) {
             self.sm_curr.copy_sm(&self.sm_prev);
         }

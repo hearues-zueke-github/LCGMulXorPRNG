@@ -21,12 +21,11 @@ enum VecType {
 
 struct VecTypeLenght {
     vec_type: VecType,
-    lenght: usize,
+    length: usize,
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    // print!("args: {:?}\n", args);
 
     assert!(args.len() >= 5);
 
@@ -66,9 +65,9 @@ fn main() {
         };
         assert!(vec_type != VecType::NONE, "Type is not defined!");
 
-        let lenght: usize = usize::from_str_radix(v_temp[1], 10).unwrap();
+        let length: usize = usize::from_str_radix(v_temp[1], 10).unwrap();
         
-        v_vec_type_lenght.push(VecTypeLenght { vec_type, lenght });
+        v_vec_type_lenght.push(VecTypeLenght { vec_type, length });
     }
 
     let mut file: File = File::create(file_path).unwrap();
@@ -82,17 +81,17 @@ fn main() {
         match vec_type_lenght.vec_type {
             VecType::U64 => {
                 let mut v_vec: VecOwn<u64> = VecOwn::<u64>::new();
-                rnd.generate_new_values_u64(&mut v_vec, vec_type_lenght.lenght);
+                rnd.generate_new_values_u64(&mut v_vec, vec_type_lenght.length);
                 write!(file, "v_vec:{}\n", utils_vec_join::vec_own_u64_hex_join_string(&v_vec, ",")).unwrap();
-                rnd.write_current_state_to_file(&mut file);
             },
             VecType::F64 => {
                 let mut v_vec: VecOwn<f64> = VecOwn::<f64>::new();
-                rnd.generate_new_values_f64(&mut v_vec, vec_type_lenght.lenght);
+                rnd.generate_new_values_f64(&mut v_vec, vec_type_lenght.length);
                 write!(file, "v_vec:{}\n", utils_vec_join::vec_own_f64_join_string(&v_vec, ",")).unwrap();
-                rnd.write_current_state_to_file(&mut file);
             },
             VecType::NONE => todo!(),
         }
+
+        rnd.write_current_state_to_file(&mut file);
     }
 }
