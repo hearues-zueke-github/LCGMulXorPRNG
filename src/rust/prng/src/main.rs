@@ -82,12 +82,12 @@ fn main() {
             VecType::U64 => {
                 let mut v_vec: VecOwn<u64> = VecOwn::<u64>::new();
                 rnd.generate_new_values_u64(&mut v_vec, vec_type_lenght.length);
-                write!(file, "v_vec:{}\n", utils_vec_join::vec_own_u64_hex_join_string(&v_vec, ",")).unwrap();
+                write!(file, "v_vec_u64:{}\n", utils_vec_join::vec_own_u64_hex_join_string(&v_vec, ",")).unwrap();
             },
             VecType::F64 => {
                 let mut v_vec: VecOwn<f64> = VecOwn::<f64>::new();
                 rnd.generate_new_values_f64(&mut v_vec, vec_type_lenght.length);
-                write!(file, "v_vec:{}\n", utils_vec_join::vec_own_f64_join_string(&v_vec, ",")).unwrap();
+                write!(file, "v_vec_f64:{}\n", utils_vec_join::vec_own_f64_join_string(&v_vec, ",")).unwrap();
             },
             VecType::NONE => todo!(),
         }

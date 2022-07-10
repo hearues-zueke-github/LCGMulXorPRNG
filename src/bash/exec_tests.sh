@@ -1,10 +1,6 @@
 #! /bin/bash
 
-# create a temp dir for the files
-DIR_TEMP=$(mktemp -d)
-echo "DIR_TEMP=$DIR_TEMP"
-
-commands=("python3" "cargo" "make" "g++")
+commands=("python3" "cargo" "make" "g++" "java" "mvn")
 
 for v in "${commands[@]}"; do
 	echo "Check for command '$v'"
@@ -34,13 +30,24 @@ path_prog_cpp="$dir_src_cpp_build/PRNGinCPP"
 dir_src_python="$DIR_PATH/../python"
 path_prog_python="python3 $dir_src_python/prng.py"
 
+dir_src_java="$DIR_PATH/../java/prng"
+prog_java_build="mvn clean package"
+path_prog_java="java --enable-preview -jar $dir_src_java/target/prng-1.0-SNAPSHOT.jar"
+
 # compile rust first
+cd $dir_src_rust
+cargo build --release
+
 mkdir -p $dir_src_cpp_build
 cd $dir_src_cpp_build
 make
 
-cd $dir_src_rust
-cargo build --release
+cd $dir_src_java
+$prog_java_build
+
+# create a temp dir for the files
+DIR_TEMP=$(mktemp -d)
+echo "DIR_TEMP=$DIR_TEMP"
 
 # general template for replacing the variables
 args_format="file_path=<file_path> seed_u8=<seed_u8> length_u8=<length_u8> types_of_arr=<types_of_arr>"
@@ -53,7 +60,7 @@ max_nr_arg=0
 
 d_tbl_arg["$max_nr_arg,seed_u8"]="00,01,02,03,04"
 d_tbl_arg["$max_nr_arg,length_u8"]="128"
-d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:10,u64:1,f64:5,u64:10,u64:1,f64:5,u64:10,u64:1,f64:5,u64:10,u64:1,f64:5"
+d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:10,u64:1,u64:5,u64:10,u64:1,f64:5,u64:10,u64:1,f64:5,u64:10,u64:1,f64:5"
 max_nr_arg=$((max_nr_arg+1))
 
 d_tbl_arg["$max_nr_arg,seed_u8"]="00,01,02,03,04"
@@ -71,6 +78,11 @@ d_tbl_arg["$max_nr_arg,length_u8"]="1024"
 d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:10,u64:20,u64:31,u64:50,u64:31,u64:123"
 max_nr_arg=$((max_nr_arg+1))
 
+d_tbl_arg["$max_nr_arg,seed_u8"]="0F,F0,F1,1F,E2,2E,E3,3D,DC,CD,4C,C4"
+d_tbl_arg["$max_nr_arg,length_u8"]="64"
+d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:19,u64:60,u64:71,u64:100,u64:301,u64:503,f64:1000"
+max_nr_arg=$((max_nr_arg+1))
+
 declare -A d_tbl_lang
 
 max_nr_lang=0
@@ -85,6 +97,10 @@ max_nr_lang=$((max_nr_lang+1))
 
 d_tbl_lang["$max_nr_lang,lang_exe"]=$path_prog_python
 d_tbl_lang["$max_nr_lang,lang_name"]="python3"
+max_nr_lang=$((max_nr_lang+1))
+
+d_tbl_lang["$max_nr_lang,lang_exe"]=$path_prog_java
+d_tbl_lang["$max_nr_lang,lang_name"]="java"
 max_nr_lang=$((max_nr_lang+1))
 
 # lang_name=rust
@@ -122,7 +138,12 @@ cd $DIR_TEMP
 echo "sha256sum *"
 sha256sum *
 
+# TODO: make a simple parser for checking each file with each other!
+
 # exit
+
+cd $dir_src_python
+python3.10 -i check_generated_saved_files.py dir_path=$DIR_TEMP
 
 # delete the temp folder again
 rm -rf $DIR_TEMP

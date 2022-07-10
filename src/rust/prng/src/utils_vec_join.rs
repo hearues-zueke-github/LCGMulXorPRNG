@@ -21,7 +21,7 @@ mod utils_vec_join {
     pub fn vec_own_f64_join_string(v_vec: &Vec<f64>, join_str: &str) -> String {
         v_vec
         .iter()
-        .map(|&x| format!("{:}", x))
+        .map(|&x| format!("{:.16}", x))
         .collect::<Vec<String>>()
         .join(join_str)
     }
