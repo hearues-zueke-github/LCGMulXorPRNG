@@ -40,6 +40,7 @@ cargo build --release
 
 mkdir -p $dir_src_cpp_build
 cd $dir_src_cpp_build
+cmake ..
 make
 
 cd $dir_src_java
