@@ -9,6 +9,10 @@ from hashlib import sha256
 # ignore the warnings, for the overflow! should occour sometimes, is intended
 np.seterr(all="ignore")
 
+MASK_UINT64_FLOAT64 = np.uint64(0x1fffffffffffff)
+MIN_VAL_FLOAT64 = np.float64(2)**-53
+BLOCK_SIZE = 32
+
 class StateMachine():
 
 	__slots__ = [
@@ -35,45 +39,40 @@ class StateMachine():
 
 class RandomNumberDevice():
 
-	def __init__(self, arr_seed_uint8, length_uint8=128):
-		assert isinstance(arr_seed_uint8, np.ndarray)
-		assert len(arr_seed_uint8.shape) == 1
-		assert arr_seed_uint8.dtype == np.uint8(0).dtype
+	def __init__(self, seed_u8, length_u8=128):
+		assert isinstance(seed_u8, np.ndarray)
+		assert len(seed_u8.shape) == 1
+		assert seed_u8.dtype == np.uint8(0).dtype
 
-		self.length_uint8 = length_uint8
-		self.block_size = 32
-		assert self.length_uint8 % self.block_size == 0
-		self.amount_block = self.length_uint8 // self.block_size
+		self.length_u8 = length_u8
+		assert self.length_u8 % BLOCK_SIZE == 0
+		self.amount_u64 = self.length_u8 // BLOCK_SIZE
 
-		self.vector_constant = np.arange(1, self.block_size + 1, dtype=np.uint8)
+		self.vector_constant = np.arange(1, BLOCK_SIZE + 1, dtype=np.uint8)
 
-		self.mask_uint64_float64 = np.uint64(0x1fffffffffffff)
+		self.seed_u8 = seed_u8.copy()
 
-		self.arr_seed_uint8 = arr_seed_uint8.copy()
-
-		self.length_values_uint8 = self.length_uint8
+		self.length_values_uint8 = self.length_u8
 		self.length_values_uint64 = self.length_values_uint8 // 8
-
-		self.min_val_float64 = np.float64(2)**-53
 
 		self.init_state()
 
 
 	def init_state(self):
-		self.arr_state_uint8 = np.zeros((self.length_uint8, ), dtype=np.uint8)
+		self.arr_state_uint8 = np.zeros((self.length_u8, ), dtype=np.uint8)
 
 		self.arr_state_uint64 = self.arr_state_uint8.view(np.uint64)
 
-		length = self.arr_seed_uint8.shape[0]
+		length = self.seed_u8.shape[0]
 		i = 0
-		while i < length - self.length_uint8:
-			self.arr_state_uint8[:] ^= self.arr_seed_uint8[i:i+self.length_uint8]
-			i += self.length_uint8
+		while i < length - self.length_u8:
+			self.arr_state_uint8[:] ^= self.seed_u8[i:i+self.length_u8]
+			i += self.length_u8
 
 		if i == 0:
-			self.arr_state_uint8[:length] ^= self.arr_seed_uint8
-		elif i % self.length_uint8 != 0:
-			self.arr_state_uint8[:i%self.length_uint8] ^= self.arr_seed_uint8[i:]
+			self.arr_state_uint8[:length] ^= self.seed_u8
+		elif i % self.length_u8 != 0:
+			self.arr_state_uint8[:i%self.length_u8] ^= self.seed_u8[i:]
 		
 		self.sm_curr = StateMachine(length=self.length_values_uint64)
 		self.sm_prev = StateMachine(length=self.length_values_uint64)
@@ -128,8 +127,8 @@ class RandomNumberDevice():
 
 	def print_arr_state_uint8(self):
 		print(f"arr_state_uint8:")
-		for j in range(0, self.amount_block):
-			s = ''.join(map(lambda x: f'{x:02X}', self.arr_state_uint8[self.block_size*(j + 0):self.block_size*(j + 1)]))
+		for j in range(0, self.amount_u64):
+			s = ''.join(map(lambda x: f'{x:02X}', self.arr_state_uint8[BLOCK_SIZE*(j + 0):BLOCK_SIZE*(j + 1)]))
 			print(f"- j: {j:2}, s: {s}")
 
 	def print_current_vals(self) -> None:
@@ -165,14 +164,14 @@ class RandomNumberDevice():
 
 
 	def next_hashing_state(self):
-		for i in range(0, self.amount_block):
-			idx_blk_0 = (i + 0) % self.amount_block
-			idx_blk_1 = (i + 1) % self.amount_block
+		for i in range(0, self.amount_u64):
+			idx_blk_0 = (i + 0) % self.amount_u64
+			idx_blk_1 = (i + 1) % self.amount_u64
 
-			idx_0_0 = self.block_size * (idx_blk_0 + 0)
-			idx_0_1 = self.block_size * (idx_blk_0 + 1)
-			idx_1_0 = self.block_size * (idx_blk_1 + 0)
-			idx_1_1 = self.block_size * (idx_blk_1 + 1)
+			idx_0_0 = BLOCK_SIZE * (idx_blk_0 + 0)
+			idx_0_1 = BLOCK_SIZE * (idx_blk_0 + 1)
+			idx_1_0 = BLOCK_SIZE * (idx_blk_1 + 0)
+			idx_1_1 = BLOCK_SIZE * (idx_blk_1 + 1)
 			arr_part_0 = self.arr_state_uint8[idx_0_0:idx_0_1]
 			arr_part_1 = self.arr_state_uint8[idx_1_0:idx_1_1]
 
@@ -267,7 +266,7 @@ class RandomNumberDevice():
 	def calc_next_float64(self, amount):
 		arr = self.calc_next_uint64(amount=amount)
 
-		return self.min_val_float64 * (arr & self.mask_uint64_float64).astype(np.float64)
+		return MIN_VAL_FLOAT64 * (arr & MASK_UINT64_FLOAT64).astype(np.float64)
 
 
 if __name__ == '__main__':
@@ -290,8 +289,8 @@ if __name__ == '__main__':
 	types_of_arr = [(lambda x: (x[0], int(x[1], 10)))(v.split(":")) for v in d_keyargs["types_of_arr"].split(",")]
 
 	rnd = RandomNumberDevice(
-		arr_seed_uint8=seed_u8,
-		length_uint8=length_u8,
+		seed_u8=seed_u8,
+		length_u8=length_u8,
 	)
 
 	with open(file_path, "w") as f:
@@ -301,12 +300,12 @@ if __name__ == '__main__':
 			if type_name == "u64":
 				arr = rnd.calc_next_uint64(amount=amount)
 				val = ','.join(['{:016X}'.format(v) for v in arr])
+				f.write("v_vec_u64:{}\n".format(val))
 			elif type_name == "f64":
 				arr = rnd.calc_next_float64(amount=amount)
-				val = ','.join(['{}'.format(v) for v in arr])
+				val = ','.join(['{:.016f}'.format(v) for v in arr])
+				f.write("v_vec_f64:{}\n".format(val))
 			else:
 				assert False
 			
-			f.write("v_vec:{}\n".format(val))
-
 			f.write(rnd.get_current_vals_as_string())

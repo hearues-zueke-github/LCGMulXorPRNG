@@ -106,11 +106,11 @@ int main(int argc, char* argv[]) {
 		if (type.type_ == "u64") {
 			vector<uint64_t> vec;
 			rnd.generate_new_values_uint64_t(vec, type.amount_);
-			f << format("v_vec:{}\n", RandomNumberDevice::convert_vec_uint64_t_to_string(vec));
+			f << format("v_vec_u64:{}\n", RandomNumberDevice::convert_vec_u64_to_string(vec));
 		} else if (type.type_ == "f64") {
 			vector<double> vec;
 			rnd.generate_new_values_double(vec, type.amount_);
-			f << format("v_vec:{}\n", RandomNumberDevice::convert_vec_double_to_string(vec));
+			f << format("v_vec_f64:{}\n", RandomNumberDevice::convert_vec_f64_to_string(vec));
 		} else {
 			print("found type: {}\n", type.type_);
 			assert(false && "Not a valid type!");
