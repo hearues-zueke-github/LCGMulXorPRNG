@@ -1,28 +1,28 @@
-#include <stdlib.h>
+/**
+ *  @file   IGraphicsContext.hpp
+ *  @brief  Graphics Context Interface
+ *  @author Somebody else
+ *  @date   2012-02-20
+ ***********************************************/
 
 #include <algorithm>
 #include <cassert>
-#include <fstream>
+#include <cstdint>
+#include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <map>
-#include <set>
-#include <stdint.h>
 #include <string>
 #include <vector>
 
 #include "fmt/core.h"
 #include "fmt/format.h"
-#include "fmt/ranges.h"
 
-#include "PRNG.h"
+#include "RandomNumberDevice.h"
 
-using std::copy;
-using std::cout;
-using std::endl;
 using std::fstream;
 using std::ios;
 using std::map;
-using std::set;
 using std::string;
 using std::vector;
 
@@ -31,6 +31,9 @@ using fmt::print;
 
 using PRNG::RandomNumberDevice;
 
+/**
+ * ... text ...
+ */
 void tokenize(const string &s, const char delimiter, vector<string> &vec) {
 	vec.resize(0);
 	size_t first_idx = 0;
@@ -41,7 +44,11 @@ void tokenize(const string &s, const char delimiter, vector<string> &vec) {
 	vec.push_back(s.substr(first_idx));
 }
 
+/**
+ * ... text ...
+ */
 int main(int argc, char* argv[]) {
+  // simple approach to get a key-value pair of arguments
 	map<string, string> m;
 	for (int i = 1; i < argc; ++i) {
 		vector<string> vec;
@@ -71,8 +78,11 @@ int main(int argc, char* argv[]) {
 			vec_seed.push_back(strtol(vec[i].c_str(), nullptr, 16));
 		}
 	}
+
+  // the length of the state vector
 	const size_t length_u8 = strtoull(m["length_u8"].c_str(), nullptr, 10);
 
+  // this class is only needed once in the main
 	class Type {
 	public:
 		string type_;
@@ -105,11 +115,11 @@ int main(int argc, char* argv[]) {
 
 		if (type.type_ == "u64") {
 			vector<uint64_t> vec;
-			rnd.generate_new_values_uint64_t(vec, type.amount_);
+      rnd.generate_new_values_u64(vec, type.amount_);
 			f << format("v_vec_u64:{}\n", RandomNumberDevice::convert_vec_u64_to_string(vec));
 		} else if (type.type_ == "f64") {
 			vector<double> vec;
-			rnd.generate_new_values_double(vec, type.amount_);
+      rnd.generate_new_values_f64(vec, type.amount_);
 			f << format("v_vec_f64:{}\n", RandomNumberDevice::convert_vec_f64_to_string(vec));
 		} else {
 			print("found type: {}\n", type.type_);
