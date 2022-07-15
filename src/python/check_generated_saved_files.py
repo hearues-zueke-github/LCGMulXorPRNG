@@ -74,7 +74,8 @@ if __name__ == '__main__':
 			l_2 = d[key2]
 			l_check_key = [key_1 == key_2 for (key_1, _), (key_2, _) in zip(l_1, l_2)]
 			assert all(l_check_key)
-			min_diff_decimal = Decimal("1E-16")
+			# TODO: maybe this is a bit too big/small?!
+			min_diff_decimal = Decimal("5E-16")
 			arr_not_same_line = np.where([(t_1 != t_2) if t_1[0] != 'v_vec_f64' else not all([abs(v_1 - v_2) <= min_diff_decimal for v_1, v_2 in zip(t_1[1], t_2[1])]) for t_1, t_2 in zip(l_1, l_2)])[0]
 			print(f"- key1: {key1}, key2: {key2}, arr_not_same_line: {arr_not_same_line}")
 			assert len(arr_not_same_line) == 0

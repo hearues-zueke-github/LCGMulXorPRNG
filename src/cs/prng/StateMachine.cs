@@ -1,27 +1,32 @@
+using System;
+
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace PRNG {
-	struct StateMachine {
-		public List<ulong> vec_mult_x;
-		public List<ulong> vec_mult_a;
-		public List<ulong> vec_mult_b;
+	class StateMachine {
+		const ulong MaskU64F64 = 0x1fffffffffffffu;
+		readonly double MinValF64 = Math.Pow(2.0, -53.0);
 
-		public List<ulong> vec_xor_x;
-		public List<ulong> vec_xor_a;
-		public List<ulong> vec_xor_b;
+		public ulong[] vec_mult_x;
+		public ulong[] vec_mult_a;
+		public ulong[] vec_mult_b;
+
+		public ulong[] vec_xor_x;
+		public ulong[] vec_xor_a;
+		public ulong[] vec_xor_b;
 
 		public int amount_u64;
 		public int idx_mult;
 		public int idx_xor;
 
 		public StateMachine(in int amount_vals) {
-			vec_mult_x = new List<ulong> ( new ulong[amount_vals] );
-			vec_mult_a = new List<ulong> ( new ulong[amount_vals] );
-			vec_mult_b = new List<ulong> ( new ulong[amount_vals] );
-			vec_xor_x = new List<ulong> ( new ulong[amount_vals] );
-			vec_xor_a = new List<ulong> ( new ulong[amount_vals] );
-			vec_xor_b = new List<ulong> ( new ulong[amount_vals] );
+			vec_mult_x = new ulong[amount_vals];
+			vec_mult_a = new ulong[amount_vals];
+			vec_mult_b = new ulong[amount_vals];
+			vec_xor_x = new ulong[amount_vals];
+			vec_xor_a = new ulong[amount_vals];
+			vec_xor_b = new ulong[amount_vals];
 
 			amount_u64 = amount_vals;
 			idx_mult = 0;
@@ -43,7 +48,7 @@ namespace PRNG {
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		ulong get_next_u64() {
+		public ulong get_next_u64() {
 			// this is not C++... why is "const" not working?
 			ulong val_mult_new = ((vec_mult_a[idx_mult] * vec_mult_x[idx_mult]) + vec_mult_b[idx_mult]) ^ vec_xor_x[idx_xor];
 			vec_mult_x[idx_mult] = val_mult_new;
@@ -61,6 +66,11 @@ namespace PRNG {
 			}
 
 			return val_mult_new;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public double get_next_double() {
+			return MinValF64 * (double)(get_next_u64() & MaskU64F64);
 		}
 	}
 }

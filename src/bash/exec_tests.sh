@@ -1,6 +1,6 @@
 #! /bin/bash
 
-commands=("python3" "cargo" "make" "g++" "java" "mvn")
+commands=("python3" "cargo" "make" "g++" "java" "mvn" "mono" "csc")
 
 for v in "${commands[@]}"; do
 	echo "Check for command '$v'"
@@ -34,6 +34,10 @@ dir_src_java="$DIR_PATH/../java/prng"
 prog_java_build="mvn clean package"
 path_prog_java="java --enable-preview -jar $dir_src_java/target/prng-1.0-SNAPSHOT.jar"
 
+dir_src_cs="$DIR_PATH/../cs/prng"
+prog_cs_build="csc /optimize EntryPoint.cs RandomNumberDevice.cs StateMachine.cs"
+path_prog_cs="mono $dir_src_cs/EntryPoint.exe"
+
 # compile rust first
 cd $dir_src_rust
 cargo build --release
@@ -45,6 +49,9 @@ make
 
 cd $dir_src_java
 $prog_java_build
+
+cd $dir_src_cs
+$prog_cs_build
 
 # create a temp dir for the files
 DIR_TEMP=$(mktemp -d)
@@ -64,25 +71,25 @@ d_tbl_arg["$max_nr_arg,length_u8"]="128"
 d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:10,u64:1,u64:5,u64:10,u64:1,f64:5,u64:10,u64:1,f64:5,u64:10,u64:1,f64:5"
 max_nr_arg=$((max_nr_arg+1))
 
-d_tbl_arg["$max_nr_arg,seed_u8"]="00,01,02,03,04"
-d_tbl_arg["$max_nr_arg,length_u8"]="192"
-d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:11,u64:14,f64:2,u64:19,f64:15"
-max_nr_arg=$((max_nr_arg+1))
+# d_tbl_arg["$max_nr_arg,seed_u8"]="00,01,02,03,04"
+# d_tbl_arg["$max_nr_arg,length_u8"]="192"
+# d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:11,u64:14,f64:2,u64:19,f64:15"
+# max_nr_arg=$((max_nr_arg+1))
 
-d_tbl_arg["$max_nr_arg,seed_u8"]="00"
-d_tbl_arg["$max_nr_arg,length_u8"]="128"
-d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:0,u64:1,u64:2,u64:3,u64:4,u64:5"
-max_nr_arg=$((max_nr_arg+1))
+# d_tbl_arg["$max_nr_arg,seed_u8"]="00"
+# d_tbl_arg["$max_nr_arg,length_u8"]="128"
+# d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:0,u64:1,u64:2,u64:3,u64:4,u64:5"
+# max_nr_arg=$((max_nr_arg+1))
 
-d_tbl_arg["$max_nr_arg,seed_u8"]="FF,01,A0,50,00"
-d_tbl_arg["$max_nr_arg,length_u8"]="1024"
-d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:10,u64:20,u64:31,u64:50,u64:31,u64:123"
-max_nr_arg=$((max_nr_arg+1))
+# d_tbl_arg["$max_nr_arg,seed_u8"]="FF,01,A0,50,00"
+# d_tbl_arg["$max_nr_arg,length_u8"]="1024"
+# d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:10,u64:20,u64:31,u64:50,u64:31,u64:123"
+# max_nr_arg=$((max_nr_arg+1))
 
-d_tbl_arg["$max_nr_arg,seed_u8"]="0F,F0,F1,1F,E2,2E,E3,3D,DC,CD,4C,C4"
-d_tbl_arg["$max_nr_arg,length_u8"]="64"
-d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:19,u64:60,u64:71,u64:100,u64:301,u64:503,f64:1000"
-max_nr_arg=$((max_nr_arg+1))
+# d_tbl_arg["$max_nr_arg,seed_u8"]="0F,F0,F1,1F,E2,2E,E3,3D,DC,CD,4C,C4"
+# d_tbl_arg["$max_nr_arg,length_u8"]="64"
+# d_tbl_arg["$max_nr_arg,types_of_arr"]="u64:19,u64:60,u64:71,u64:100,u64:301,u64:503,f64:1000"
+# max_nr_arg=$((max_nr_arg+1))
 
 declare -A d_tbl_lang
 
@@ -102,6 +109,10 @@ max_nr_lang=$((max_nr_lang+1))
 
 d_tbl_lang["$max_nr_lang,lang_exe"]=$path_prog_java
 d_tbl_lang["$max_nr_lang,lang_name"]="java"
+max_nr_lang=$((max_nr_lang+1))
+
+d_tbl_lang["$max_nr_lang,lang_exe"]=$path_prog_cs
+d_tbl_lang["$max_nr_lang,lang_name"]="cs"
 max_nr_lang=$((max_nr_lang+1))
 
 # lang_name=rust
