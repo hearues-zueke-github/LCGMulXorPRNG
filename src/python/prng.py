@@ -4,6 +4,7 @@ import sys
 
 import numpy as np
 
+from copy import deepcopy
 from hashlib import sha256
 
 # ignore the warnings, for the overflow! should occour sometimes, is intended
@@ -35,6 +36,20 @@ class StateMachine():
 
 		self.idx_values_mult_uint64 = 0
 		self.idx_values_xor_uint64 = 0
+
+
+	def dictionary(self):
+		return {
+			'length': deepcopy(self.length),
+			'arr_mult_x': deepcopy(self.arr_mult_x),
+			'arr_mult_a': deepcopy(self.arr_mult_a),
+			'arr_mult_b': deepcopy(self.arr_mult_b),
+			'arr_xor_x': deepcopy(self.arr_xor_x),
+			'arr_xor_a': deepcopy(self.arr_xor_a),
+			'arr_xor_b': deepcopy(self.arr_xor_b),
+			'idx_values_mult_uint64': deepcopy(self.idx_values_mult_uint64),
+			'idx_values_xor_uint64': deepcopy(self.idx_values_xor_uint64),
+		}
 
 
 class RandomNumberDevice():
@@ -78,18 +93,18 @@ class RandomNumberDevice():
 		self.sm_prev = StateMachine(length=self.length_values_uint64)
 
 		# do the double hashing per round, because the avalanche effect should be there, even for the smallest change in each round!
-		self.next_hashing_state(); self.next_hashing_state()
+		self.next_hashing_state()
 		self.sm_curr.arr_mult_x[:] = self.arr_state_uint64
-		self.next_hashing_state(); self.next_hashing_state()
+		self.next_hashing_state()
 		self.sm_curr.arr_mult_a[:] = self.arr_state_uint64
-		self.next_hashing_state(); self.next_hashing_state()
+		self.next_hashing_state()
 		self.sm_curr.arr_mult_b[:] = self.arr_state_uint64
 		
-		self.next_hashing_state(); self.next_hashing_state()
+		self.next_hashing_state()
 		self.sm_curr.arr_xor_x[:] = self.arr_state_uint64
-		self.next_hashing_state(); self.next_hashing_state()
+		self.next_hashing_state()
 		self.sm_curr.arr_xor_a[:] = self.arr_state_uint64
-		self.next_hashing_state(); self.next_hashing_state()
+		self.next_hashing_state()
 		self.sm_curr.arr_xor_b[:] = self.arr_state_uint64
 
 		self.sm_curr.arr_mult_a[:] = 1 + self.sm_curr.arr_mult_a - (self.sm_curr.arr_mult_a % 4)
@@ -131,6 +146,7 @@ class RandomNumberDevice():
 			s = ''.join(map(lambda x: f'{x:02X}', self.arr_state_uint8[BLOCK_SIZE*(j + 0):BLOCK_SIZE*(j + 1)]))
 			print(f"- j: {j:2}, s: {s}")
 
+
 	def print_current_vals(self) -> None:
 		l_state_uint8 = ', '.join(['{:02X}'.format(v) for v in self.arr_state_uint8])
 		print(f"l_state_uint8: {l_state_uint8}")
@@ -164,23 +180,24 @@ class RandomNumberDevice():
 
 
 	def next_hashing_state(self):
-		for i in range(0, self.amount_u64):
-			idx_blk_0 = (i + 0) % self.amount_u64
-			idx_blk_1 = (i + 1) % self.amount_u64
+		for _ in range(0, 2):
+			for i in range(0, self.amount_u64):
+				idx_blk_0 = (i + 0) % self.amount_u64
+				idx_blk_1 = (i + 1) % self.amount_u64
 
-			idx_0_0 = BLOCK_SIZE * (idx_blk_0 + 0)
-			idx_0_1 = BLOCK_SIZE * (idx_blk_0 + 1)
-			idx_1_0 = BLOCK_SIZE * (idx_blk_1 + 0)
-			idx_1_1 = BLOCK_SIZE * (idx_blk_1 + 1)
-			arr_part_0 = self.arr_state_uint8[idx_0_0:idx_0_1]
-			arr_part_1 = self.arr_state_uint8[idx_1_0:idx_1_1]
+				idx_0_0 = BLOCK_SIZE * (idx_blk_0 + 0)
+				idx_0_1 = BLOCK_SIZE * (idx_blk_0 + 1)
+				idx_1_0 = BLOCK_SIZE * (idx_blk_1 + 0)
+				idx_1_1 = BLOCK_SIZE * (idx_blk_1 + 1)
+				arr_part_0 = self.arr_state_uint8[idx_0_0:idx_0_1]
+				arr_part_1 = self.arr_state_uint8[idx_1_0:idx_1_1]
 
-			if np.all(arr_part_0 == arr_part_1):
-				arr_part_1 ^= self.vector_constant
+				if np.all(arr_part_0 == arr_part_1):
+					arr_part_1 ^= self.vector_constant
 
-			arr_hash_0 = np.array(list(sha256(arr_part_0.data).digest()), dtype=np.uint8)
-			arr_hash_1 = np.array(list(sha256(arr_part_1.data).digest()), dtype=np.uint8)
-			self.arr_state_uint8[idx_1_0:idx_1_1] ^= arr_hash_0 ^ arr_hash_1 ^ arr_part_0
+				arr_hash_0 = np.array(list(sha256(arr_part_0.data).digest()), dtype=np.uint8)
+				arr_hash_1 = np.array(list(sha256(arr_part_1.data).digest()), dtype=np.uint8)
+				self.arr_state_uint8[idx_1_0:idx_1_1] ^= arr_hash_0 ^ arr_hash_1 ^ arr_part_0
 			
 
 	def calc_next_uint64(self, amount):
