@@ -1,8 +1,8 @@
 /**
- *  @file   IGraphicsContext.hpp
- *  @brief  Graphics Context Interface
- *  @author Somebody else
- *  @date   2012-02-20
+ *  @file   main.cpp
+ *  @brief  The main cpp program
+ *  @author Hearues Zueke
+ *  @date   2022-07-07
  ***********************************************/
 
 #include <algorithm>
@@ -10,7 +10,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
-#include <fstream>
 #include <map>
 #include <string>
 #include <vector>
