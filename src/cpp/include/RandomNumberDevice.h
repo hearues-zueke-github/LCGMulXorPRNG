@@ -51,6 +51,12 @@ namespace PRNG {
 		void save_current_state();
 		void restore_previous_state();
 	};
+
+
+	inline double RandomNumberDevice::get_next_double() {
+		const uint64_t val = sm_curr_.get_next_uint64_t();
+		return MIN_VAL_F64 * (val & MASK_U64_F64);
+	}
 };
 
 #endif // OWNPRNG_RANDOM_NUMBER_DEVICE_H

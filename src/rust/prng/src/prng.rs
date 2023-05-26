@@ -1,4 +1,6 @@
-mod prng {
+mod vec_own;
+
+pub mod prng {
     use std::fs::File;
     use std::io::Write;
 
@@ -6,7 +8,7 @@ mod prng {
 
     use sha2::{Sha256, Digest};
 
-    use crate::VecOwn;
+    use vec_own::VecOwn;
 
     include!("utils_ptr.rs");
     use utils_ptr::{ptr_mut_at, val_ref_mut_at};
@@ -283,7 +285,7 @@ mod prng {
         }
 
         #[inline(always)]
-        fn generate_next_u64(&mut self) -> u64 {
+        pub fn generate_next_u64(&mut self) -> u64 {
             let sm_curr: &mut StateMachine = &mut self.sm_curr;
 
             let v_x_mult: &mut VecOwn<u64> = &mut sm_curr.v_x_mult;
@@ -314,6 +316,15 @@ mod prng {
             return val_mult_new;
         }
 
+        pub fn generate_next_f64(&mut self) -> f64 {
+            let val: u64 = self.generate_next_u64();
+            let val_and: u64 = val & self.mask_u64_f64;
+            let val_float: f64 = val_and as f64;
+            let val_finish = self.min_val_f64 * val_float;
+
+            return val_finish;
+        }
+
         pub fn generate_new_values_u64(&mut self, v_vec: &mut VecOwn<u64>, amount: usize) {
             v_vec.resize(amount, 0);
 
@@ -326,11 +337,7 @@ mod prng {
             v_vec.resize(amount, 0.);
 
             for i in 0..amount {
-                let val: u64 = self.generate_next_u64();
-                let val_and: u64 = val & self.mask_u64_f64;
-                let val_float: f64 = val_and as f64;
-                let val_finish = self.min_val_f64 * val_float;
-                v_vec[i] = val_finish;
+                v_vec[i] = self.generate_next_f64();
             }
         }
     }
