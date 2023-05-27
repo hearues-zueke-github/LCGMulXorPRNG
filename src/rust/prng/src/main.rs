@@ -4,11 +4,10 @@ use std::fs::File;
 use std::io::Write;
 use std::collections::HashMap;
 
-include!("vec_own.rs");
 include!("prng.rs");
 
-use vec_own::VecOwn;
 use prng::RandomNumberDevice;
+use prng::vec_own::VecOwn;
 
 include!("utils_vec_join.rs");
 

@@ -1,5 +1,3 @@
-mod vec_own;
-
 pub mod prng {
     use std::fs::File;
     use std::io::Write;
@@ -8,6 +6,7 @@ pub mod prng {
 
     use sha2::{Sha256, Digest};
 
+    include!("vec_own.rs");
     use vec_own::VecOwn;
 
     include!("utils_ptr.rs");

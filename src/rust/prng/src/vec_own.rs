@@ -1,4 +1,4 @@
-mod vec_own {
+pub mod vec_own {
     use std::fmt;
     use std::ops; 
 
