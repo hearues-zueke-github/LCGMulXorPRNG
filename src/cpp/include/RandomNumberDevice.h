@@ -44,19 +44,23 @@ namespace PRNG {
 		static std::string convert_vec_f64_to_string(const std::vector<double>& vec);
 		void print_current_state();
 		void write_current_state_to_file(std::fstream& f);
-		inline double get_next_double();
 		void generate_new_values_u64(std::vector<uint64_t>& vec, const size_t amount);
 		void generate_new_values_f64(std::vector<double>& vec, const size_t amount);
 
 		void save_current_state();
 		void restore_previous_state();
+
+		inline double get_next_double() {
+			const uint64_t val = sm_curr_.get_next_uint64_t();
+			return MIN_VAL_F64 * (val & MASK_U64_F64);
+		}
 	};
 
 
-	inline double RandomNumberDevice::get_next_double() {
-		const uint64_t val = sm_curr_.get_next_uint64_t();
-		return MIN_VAL_F64 * (val & MASK_U64_F64);
-	}
+	// inline double RandomNumberDevice::get_next_double() {
+	// 	const uint64_t val = sm_curr_.get_next_uint64_t();
+	// 	return MIN_VAL_F64 * (val & MASK_U64_F64);
+	// }
 };
 
 #endif // OWNPRNG_RANDOM_NUMBER_DEVICE_H

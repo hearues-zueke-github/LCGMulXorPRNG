@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "-no-pie -O2")
 
 # this formatting library is needed for this project: https://github.com/fmtlib/fmt.git
-set(INC_FMT $ENV{HOME}/libs/fmt-9.1.0)
+set(INC_FMT $ENV{HOME}/libs/fmt-10.0.0)
 
 add_library(StateMachine STATIC src/StateMachine.cpp)
 target_include_directories(StateMachine PUBLIC include)

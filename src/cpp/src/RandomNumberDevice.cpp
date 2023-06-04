@@ -154,12 +154,6 @@ namespace PRNG {
 		f << format("idx_values_xor:{}\n", sm_curr_.idx_xor_);
 	}
 
-
-	inline double RandomNumberDevice::get_next_double() {
-		const uint64_t val = sm_curr_.get_next_uint64_t();
-		return MIN_VAL_F64 * (val & MASK_U64_F64);
-	}
-
 	void RandomNumberDevice::generate_new_values_u64(std::vector<uint64_t>& vec, const size_t amount) {
 		vec.resize(amount);
 
