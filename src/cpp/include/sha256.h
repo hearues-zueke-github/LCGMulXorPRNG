@@ -36,14 +36,14 @@ const uint32_t k[64] = {
 	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-void SHA256Transform(SHA256_CTX *ctx, uint8_t data[]);
+void SHA256Transform(SHA256_CTX *ctx, const uint8_t data[]);
 
 void SHA256Init(SHA256_CTX *ctx);
 
-void SHA256Update(SHA256_CTX *ctx, uint8_t data[], uint32_t len);
+void SHA256Update(SHA256_CTX *ctx, const uint8_t data[], const uint32_t len);
 
 void SHA256Final(SHA256_CTX *ctx, uint8_t hash[]);
 
-std::string SHA256(char* data);
+std::string SHA256(const char* data);
 
 #endif // OWNPRNG_SHA256_H

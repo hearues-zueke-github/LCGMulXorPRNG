@@ -2,7 +2,7 @@
 
 #include "sha256.h"
 
-void SHA256Transform(SHA256_CTX *ctx, uint8_t data[]) {
+void SHA256Transform(SHA256_CTX *ctx, const uint8_t data[]) {
 	uint32_t a, b, c, d, e, f, g, h, i, j, t1, t2, m[64];
 
 	for (i = 0, j = 0; i < 16; ++i, j += 4) {
@@ -58,7 +58,7 @@ void SHA256Init(SHA256_CTX *ctx) {
 	ctx->state[7] = 0x5be0cd19;
 }
 
-void SHA256Update(SHA256_CTX *ctx, uint8_t data[], uint32_t len) {
+void SHA256Update(SHA256_CTX *ctx, const uint8_t data[], const uint32_t len) {
 	for (uint32_t i = 0; i < len; ++i) {
 		ctx->data[ctx->datalen] = data[i];
 		ctx->datalen++;
@@ -113,7 +113,7 @@ void SHA256Final(SHA256_CTX *ctx, uint8_t hash[])
 	}
 }
 
-std::string SHA256(char* data) {
+std::string SHA256(const char* data) {
 	int strLen = strlen(data);
 	SHA256_CTX ctx;
 	unsigned char hash[32];
