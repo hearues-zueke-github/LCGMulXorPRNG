@@ -52,7 +52,7 @@ namespace PRNG {
 
 		inline double get_next_double() {
 			const uint64_t val = sm_curr_.get_next_uint64_t();
-			return MIN_VAL_F64 * (val & MASK_U64_F64);
+			return MIN_VAL_F64 * (double)(val & MASK_U64_F64);
 		}
 	};
 
